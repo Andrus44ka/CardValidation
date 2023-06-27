@@ -1,48 +1,59 @@
+<!DOCTYPE html>
+<html lang="en-EN">
+<head>
+    <title>Validator</title>
+    <meta charset="utf-8" />
+</head>
+<body>
 <?php
-class Validator
+class Card_Validator
 {
-    function validate($card_number): string
+    function Check($card_number): string
     {
-        $summa = 0;
+        $summ = 0;
+        $issuer_visa = '/^4[0-9]\d{12,18}$|^14\d{12,18}$/';
+        $issuer_mc = '/^5[1-5]\d{14}$|^62\d{14}$|^67\d{14}$/';
+        if(preg_match($issuer_mc, $card_number)){
+            $card_issuer = "MasterCard";
+        }
+        else if(preg_match($issuer_visa, $card_number)){
+            $card_issuer = "VISA";
+        }
+        else{
+            $card_issuer = "Название эмитента не определено";
+        }
         $len = strlen($card_number);
-        $issuer = $this -> issuer($card_number);
         for ($i=0; $i < $len; $i++){
-            $digit = $card_number % 10;
+            $figure = $card_number % 10;
             $card_number = intdiv($card_number, 10);
 
             if($i%2 != 0){
-                $digit *= 2;
-
-                if($digit>9)
-                    $digit -= 9;
+                $figure *= 2;
+                if($figure>9)
+                    $figure = intdiv($figure, 10) + $figure % 10;
             }
-            $summa += $digit;
+            $summ += $figure;
         }
-        if($summa % 10 == 0){
-            return "Valid " . $issuer;
-        }
-        else{
-            return "Invalid ";
-        }
-    }
-    function issuer($card_number): string
-    {
-        $r_visa = '/^(4[0-9]|14)+[0-9]{11,17}$/';
-        $r_mc = '/^(5[1-5]|62|67)+[0-9]{11,17}$/';
-        if(preg_match($r_mc, $card_number)){
-            return "MasterCard";
-        }
-        else if(preg_match($r_visa, $card_number)){
-            return "Visa";
-        }
-        else{
-            return "Not defined issuer";
-        }
-    }
-}
+        if($summ % 10 == 0){
 
-if(isset($_POST['card_number'])){
-    $validator = new Validator();
-    $card_number = (int) $_POST['card_number'];
-    echo $validator -> validate($card_number);
+            return "Валидная " . $card_issuer;
+        }
+        else{
+            return "Не валидная ";
+        }
+    }
 }
+if(isset($_POST["card_number"])) {
+    $Card_Validator = new Card_Validator();
+    echo $Card_Validator -> Check((int)$_POST["card_number"]);
+}
+?>
+<form method="POST">
+    <p>Enter card number: <label>
+            <input type="number" name="card_number" />
+        </label></p>
+    <input type="submit" value="Сохранить">
+</form>
+</body>
+</html>
+

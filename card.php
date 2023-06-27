@@ -13,13 +13,17 @@ class Card_Validator
         $summ = 0;
         $issuer_visa = '/^4[0-9]\d{12,18}$|^14\d{12,18}$/';
         $issuer_mc = '/^5[1-5]\d{14}$|^62\d{14}$|^67\d{14}$/';
+        $issuer_maestro = '/^(5[1-5]|62|67)\d{12,18}$/';
+
+
         if(preg_match($issuer_mc, $card_number)){
             $card_issuer = "MasterCard";
         }
         else if(preg_match($issuer_visa, $card_number)){
             $card_issuer = "VISA";
-        }
-        else{
+        }else if (preg_match($issuer_maestro, $card_number)) {
+        return "Maestro";
+        }else{
             $card_issuer = "Название эмитента не определено";
         }
         $len = strlen($card_number);
@@ -49,7 +53,7 @@ if(isset($_POST["card_number"])) {
 }
 ?>
 <form method="POST">
-    <p>Enter card number: <label>
+    <p>Введите номер карты: <label>
             <input type="number" name="card_number" />
         </label></p>
     <input type="submit" value="Сохранить">
